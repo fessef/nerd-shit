@@ -23,11 +23,26 @@
       margin: 20px auto;
       text-align: center;
     }
-    #live-reaction video {
+    #live-reaction video, #live-reaction canvas {
       width: 100%;
       border-radius: 20px;
       border: 3px solid #fbcfe8;
       box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      margin-bottom: 10px;
+    }
+    #live-reaction button {
+      background: #fbcfe8;
+      color: #831843;
+      font-weight: 600;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+    #live-reaction button:hover {
+      background-color: #f9a8d4;
+      transform: translateY(-2px);
     }
     section { max-width: 1000px; margin: auto; padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
     .card {
@@ -67,6 +82,7 @@
 <div id="live-reaction" class="card">
   <h2>Live Reaction</h2>
   <video id="webcam" autoplay muted playsinline></video>
+  <button id="captureBtn">Take Picture</button>
 </div>
 
 <section id="board">
@@ -79,16 +95,17 @@
 
 <script>
 const board = document.getElementById('board');
+const captureBtn = document.getElementById('captureBtn');
+const webcam = document.getElementById('webcam');
 
-// Example images
-const pics = [
+// Load existing pictures (can be empty initially)
+let pics = JSON.parse(localStorage.getItem('pics')) || [
   { id: 1, src: '1.jpg' },
   { id: 2, src: '2.jpg' },
   { id: 3, src: '3.jpg' },
   { id: 4, src: '4.jpg' }
 ];
 
-// Load reactions from localStorage
 let reactions = JSON.parse(localStorage.getItem('reactions')) || {};
 
 // Render all pictures
@@ -125,10 +142,24 @@ function renderBoard() {
 renderBoard();
 
 // Webcam setup
-const webcam = document.getElementById('webcam');
 navigator.mediaDevices.getUserMedia({ video: true, audio: false })
   .then(stream => { webcam.srcObject = stream; })
   .catch(err => { console.error('Webcam error:', err); });
+
+// Capture snapshot
+captureBtn.onclick = () => {
+  const canvas = document.createElement('canvas');
+  canvas.width = webcam.videoWidth;
+  canvas.height = webcam.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
+
+  const imgData = canvas.toDataURL('image/png');
+  const newId = pics.length ? pics[pics.length - 1].id + 1 : 1;
+  pics.push({ id: newId, src: imgData });
+  localStorage.setItem('pics', JSON.stringify(pics));
+  renderBoard();
+};
 </script>
 
 </body>
