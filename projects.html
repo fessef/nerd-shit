@@ -3,11 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Message Board</title>
+  <title>Picture Board</title>
   <style>
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
     body {
       font-family: "Poppins", Arial, sans-serif;
       margin: 0;
@@ -16,121 +14,100 @@
     }
     header {
       text-align: center;
-      padding: 60px 20px 40px;
-    }
-    header h1 {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
-    }
-    header p {
-      font-size: 1.1rem;
-    }
-    section {
-      max-width: 900px;
-      margin: auto;
       padding: 40px 20px;
     }
+    header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+    header p { font-size: 1.1rem; }
+    section { max-width: 1000px; margin: auto; padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
     .card {
       background: white;
       border-radius: 20px;
-      padding: 25px;
-      margin-bottom: 25px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-    }
-    h2 {
-      color: #ec4899;
-      margin-top: 0;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      font-family: inherit;
-      font-size: 1rem;
-    }
-    button {
-      background-color: #fbcfe8;
-      color: #831843;
-      font-weight: 600;
-      padding: 10px 18px;
-      border: none;
-      border-radius: 999px;
-      cursor: pointer;
-      transition: transform 0.2s, background-color 0.2s;
-    }
-    button:hover {
-      background-color: #f9a8d4;
-      transform: translateY(-2px);
-    }
-    .message {
-      border-bottom: 1px solid #eee;
-      padding: 10px 0;
-    }
-    .message p {
-      margin: 5px 0;
-    }
-    footer {
+      padding: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
       text-align: center;
-      padding: 30px 20px;
-      font-size: 0.9rem;
-      color: #6b7280;
     }
+    .card img {
+      width: 100%;
+      border-radius: 15px;
+      margin-bottom: 10px;
+    }
+    .reactions button {
+      font-size: 1.2rem;
+      margin: 3px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: #fbcfe8;
+      color: #831843;
+      transition: transform 0.1s, background 0.2s;
+    }
+    .reactions button:hover { transform: scale(1.2); background: #f9a8d4; }
+    footer { text-align: center; padding: 30px 20px; font-size: 0.9rem; color: #6b7280; }
   </style>
 </head>
 <body>
 
-  <header id="top">
-    <h1>Confession Board</h1>
-    <p>This page is a confession board! you can leave a comment here (you'll be the only one to see it:<)  yun lang loveu</p>
-  </header>
+<header>
+  <h1>Pictures ni Ganda</h1>
+  <p>wala lang ganda mo talaga loveu</p>
+</header>
 
-  <section id="board" class="card">
-    <h2>Leave a Message</h2>
-    <input type="text" id="name" placeholder="Your Name" />
-    <textarea id="message" placeholder="Your Message"></textarea>
-    <button onclick="addMessage()">Post Message</button>
-    <div id="messages" style="margin-top: 20px;"></div>
-  </section>
+<section id="board">
+  <!-- Pictures will be injected here -->
+</section>
 
-  <footer>
-    <p>🌷 Sef, 2025 🌷</p>
-  </footer>
+<footer>
+  <p>🌷 Sef, 2025 🌷</p>
+</footer>
 
-  <script>
-    // Load messages from localStorage
-    const messagesContainer = document.getElementById('messages');
-    let messages = JSON.parse(localStorage.getItem('messages')) || [];
+<script>
+const board = document.getElementById('board');
 
-    function renderMessages() {
-      messagesContainer.innerHTML = '';
-      messages.forEach(msg => {
-        const div = document.createElement('div');
-        div.className = 'message';
-        div.innerHTML = `<strong>${msg.name}</strong><p>${msg.text}</p>`;
-        messagesContainer.appendChild(div);
-      });
-    }
+// Example images
+const pics = [
+  { id: 1, src: '1.jpg' },
+  { id: 2, src: '2.jpg' },
+  { id: 3, src: '3.jpg' },
+  { id: 4, src: '4.jpg' }
+];
 
-    function addMessage() {
-      const nameInput = document.getElementById('name');
-      const messageInput = document.getElementById('message');
-      const name = nameInput.value.trim() || 'Anonymous';
-      const text = messageInput.value.trim();
+// Load reactions from localStorage
+let reactions = JSON.parse(localStorage.getItem('reactions')) || {};
 
-      if (!text) return alert('Please enter a message!');
+// Render all pictures
+function renderBoard() {
+  board.innerHTML = '';
+  pics.forEach(pic => {
+    const card = document.createElement('div');
+    card.className = 'card';
 
-      messages.push({ name, text });
-      localStorage.setItem('messages', JSON.stringify(messages));
-      renderMessages();
-      messageInput.value = '';
-    }
+    const img = document.createElement('img');
+    img.src = pic.src;
+    card.appendChild(img);
 
-    renderMessages();
-  </script>
+    const reactDiv = document.createElement('div');
+    reactDiv.className = 'reactions';
+
+    ['❤️', '👍', '😂'].forEach(emoji => {
+      const btn = document.createElement('button');
+      btn.innerText = `${emoji} ${reactions[pic.id]?.[emoji] || 0}`;
+      btn.onclick = () => {
+        reactions[pic.id] = reactions[pic.id] || {};
+        reactions[pic.id][emoji] = (reactions[pic.id][emoji] || 0) + 1;
+        localStorage.setItem('reactions', JSON.stringify(reactions));
+        renderBoard();
+      };
+      reactDiv.appendChild(btn);
+    });
+
+    card.appendChild(reactDiv);
+    board.appendChild(card);
+  });
+}
+
+renderBoard();
+</script>
 
 </body>
 </html>
-
-
